@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using static Services.WordService;
 
 namespace OpenXMLPractice.Controllers;
 
@@ -44,5 +45,18 @@ public class HomeController : Controller
         var result = await _wordService.AddExcelChartToExistingWordDocument(filePath);
 
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "example.docx");
+    }
+
+    [HttpPost]
+    [Route("UpdateLineChartExcelValue")]
+    public async Task<IActionResult> UpdateLineChartExcelValue()
+    {
+        string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
+
+        var updateTool = new UpdateLineChartExcelValueSolution();
+
+        await updateTool.UpdateLineChartExcelValue(filePath);
+
+        return Ok();
     }
 }

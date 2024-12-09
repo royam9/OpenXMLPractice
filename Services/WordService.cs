@@ -12,6 +12,7 @@ using Formula = DocumentFormat.OpenXml.Drawing.Charts.Formula;
 using Values = DocumentFormat.OpenXml.Drawing.Charts.Values;
 using Outline = DocumentFormat.OpenXml.Drawing.Outline;
 using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Services;
 
@@ -147,7 +148,7 @@ public class WordService
             // PlotArea：定義圖表中「繪圖區域」的內容
             // LineChartSeries：資料系列(Series)，本案即折線圖中的一條折線
             chart.PlotArea = new PlotArea();
-            LineChartSeries lineChartSeries = chart.PlotArea.AppendChild(new LineChartSeries());
+            LineChartSeries lineChartSeries = new LineChartSeries();
 
             uint index = 0;
             // 儲存折線的名稱的變數
@@ -197,7 +198,7 @@ public class WordService
             SolidFill solidFill = new SolidFill();
             RgbColorModelHex rgbColorModelHex = new RgbColorModelHex() { Val = "000000" };
             solidFill.AppendChild(rgbColorModelHex);
-            lineChartSeries.ChartShapeProperties.AppendChild(solidFill);            
+            lineChartSeries.ChartShapeProperties.AppendChild(solidFill);
             // DataLabels：控制顯示數據標籤的元素，數據標籤通常在圖表的資料點旁邊，
             //             用來顯示該點的具體數值或其他訊息
             DataLabels dataLabels = lineChartSeries.AppendChild(new DataLabels());
@@ -206,14 +207,78 @@ public class WordService
             #endregion
 
             LineChart lineChart = chart.PlotArea.AppendChild(new LineChart());
+            lineChart.AppendChild(lineChartSeries);
 
             // 將折線類型設為折線圖(失敗，沒有ChartType和ChartSubType屬性)            
             // lineChartSeries.ChartType = lineChart.ChartSubType;
 
-
             byte[] modifiedDocBytes = memoryStream.ToArray();
 
             return modifiedDocBytes;
+        }
+    }
+
+    public class UpdateLineChartExcelValueSolution
+    {
+        public async Task UpdateLineChartExcelValue(string filePath)
+        {
+            using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
+            using MemoryStream memoryStream = new();
+
+            await fileStream.CopyToAsync(memoryStream);
+
+            memoryStream.Position = 0;
+
+            using WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true);
+
+            MainDocumentPart mainPart = wordDoc.MainDocumentPart;
+
+            // 找到文檔中的 ChartPart
+            ChartPart chartPart = wordDoc.MainDocumentPart.ChartParts.FirstOrDefault();
+            EmbeddedPackagePart embeddedExcel = chartPart.EmbeddedPackagePart;
+
+            // 讀取嵌入的 Excel 到 MemoryStream
+            using (MemoryStream excelStream = new MemoryStream())
+            {
+                // 將 Excel 資料讀入 MemoryStream
+                embeddedExcel.GetStream(FileMode.Open, FileAccess.Read).CopyTo(excelStream);
+
+                // 打開嵌入的 Excel 文檔
+                using (SpreadsheetDocument spreadsheetDoc = SpreadsheetDocument.Open(excelStream, true))
+                {
+                    WorkbookPart workbookPart = spreadsheetDoc.WorkbookPart;
+                    Sheet sheet = workbookPart.Workbook.Descendants<Sheet>().FirstOrDefault();
+                    if (sheet != null)
+                    {
+                        WorksheetPart worksheetPart = workbookPart.GetPartById(sheet.Id.Value) as WorksheetPart;
+                        if (worksheetPart != null)
+                        {
+                            // 修改儲存格數據
+                            SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+                            Row row = sheetData.Elements<Row>().FirstOrDefault(r => r.RowIndex == 2); // 修改第2行
+                            if (row != null)
+                            {
+                                Cell cell = row.Elements<Cell>().FirstOrDefault(c => c.CellReference.Value == "B2"); // 修改 B2
+                                if (cell != null)
+                                {
+                                    cell.CellValue = new CellValue("150");
+                                    cell.DataType = new EnumValue<CellValues>(CellValues.Number);
+                                }
+                            }
+
+                            // 保存更改
+                            worksheetPart.Worksheet.Save();
+                        }
+                    }
+                }
+
+                // 將修改後的 Excel 資料寫回到嵌入部分
+                excelStream.Seek(0, SeekOrigin.Begin); // 重置Stream
+                using (Stream excelPartStream = embeddedExcel.GetStream(FileMode.Create, FileAccess.Write))
+                {
+                    excelStream.CopyTo(excelPartStream); // 寫回嵌入部分
+                }
+            }
         }
     }
 }
