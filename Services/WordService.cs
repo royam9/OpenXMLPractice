@@ -1,15 +1,8 @@
-﻿using System;
-using System.Linq;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Vml;
-using System.IO;
 using Services.Interfaces;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using Chart = DocumentFormat.OpenXml.Drawing.Charts.Chart;
 using Index = DocumentFormat.OpenXml.Drawing.Charts.Index;
 using Drawing = DocumentFormat.OpenXml.Wordprocessing.Drawing;
@@ -17,15 +10,17 @@ using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using Formula = DocumentFormat.OpenXml.Drawing.Charts.Formula;
 using Values = DocumentFormat.OpenXml.Drawing.Charts.Values;
+using Outline = DocumentFormat.OpenXml.Drawing.Outline;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Services;
 
 /// <summary>
 /// Word相關服務
 /// </summary>
-public class WordService 
+public class WordService
 {
-    public class GPTSolution : IWordService
+    public class Solution1
     {
         public async Task AddExcelChartToExistingWordDocument(string filePath)
         {
@@ -128,15 +123,15 @@ public class WordService
 
     public class CSDNSolution : IWordService
     {
-        public async Task AddExcelChartToExistingWordDocument(string filePath)
+        public async Task<byte[]> AddExcelChartToExistingWordDocument(string filePath)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using MemoryStream memoryStream = new();
-            
+
             await fileStream.CopyToAsync(memoryStream);
 
             memoryStream.Position = 0;
-            
+
             using WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true);
 
             MainDocumentPart mainPart = wordDoc.MainDocumentPart;
@@ -146,8 +141,79 @@ public class WordService
             // 初始化一個ChartSpace
             // ChartSpace：存放所有圖表設定與資料的容器
             // EditingLanguage：定義圖表的編輯語言
-            chartPart.ChartSpace = new ChartSpace(new EditingLanguage() { Val = "zh-tw"});
+            chartPart.ChartSpace = new ChartSpace(new EditingLanguage() { Val = "zh-tw" });
             Chart chart = chartPart.ChartSpace.AppendChild(new Chart());
+            // 在繪圖區域加入一條折線
+            // PlotArea：定義圖表中「繪圖區域」的內容
+            // LineChartSeries：資料系列(Series)，本案即折線圖中的一條折線
+            chart.PlotArea = new PlotArea();
+            LineChartSeries lineChartSeries = chart.PlotArea.AppendChild(new LineChartSeries());
+
+            uint index = 0;
+            // 儲存折線的名稱的變數
+            string seriesText = "Series 1";
+            // 定義Excel工作表中的範圍(此為Sheet1的A1~B5)
+            // Sheet1 工作表名稱
+            // ! 分隔工作表及表格描述
+            // $ 絕對引用，無論範圍被複製或移動，其位置都不會改變
+            // : 應該是 到 的意思
+            string rangerefernece = "Sheet1!$A$1:$B$5";
+
+            #region 折線圖數值相關設定
+            // 為該折線添加Y軸數值資料容器
+            // Values：用於表示圖表中 Y 軸數值資料的容器
+            // AppendChild：為該結構添加子節點，返回添加的節點的Reference
+            Values values = lineChartSeries.AppendChild(new Values());
+            // 將用來指向外部參考的節點添加進Values裡
+            // 表示這條折線的數值資料是參考外部
+            // NumberReference：用於指定圖表的數值資料來源
+            NumberReference numberReference = values
+                .AppendChild(new NumberReference());
+            // 在NumberReference裡面添加明確定義範圍的子節點
+            // Formula：定義數據來源的範圍，藉由字串定義
+            numberReference.AppendChild(new Formula(rangerefernece));
+            // 添加 NumberingCache 節點，用於內嵌數據
+            // (也避免外部數據丟失時圖表變為空白)
+            // (數據如果是靜態的(不來自外部)，則不需Formula，直接填充NumberingCache)
+            numberReference.AppendChild(new NumberingCache());
+            #endregion
+
+            #region 圖表基本資訊設定
+            // 為該折線添加索引，用以區分是哪一條折線(資料系列)
+            lineChartSeries.AppendChild(new Index() { Val = new UInt32Value(index) });
+            // 指定該折線的繪製順序
+            lineChartSeries.AppendChild(new Order() { Val = new UInt32Value(index) });
+            // SeriesText：定義該資料系列的名稱，也就是在圖表的圖例（Legend）中顯示的文字
+            // NumericValue：用於包裹名稱的文字內容
+            lineChartSeries.AppendChild(new SeriesText(new NumericValue() { Text = seriesText }));
+            #endregion
+
+            #region 樣式設定
+            // 將線條設定為無填滿
+            // ChartShapeProperties：定義圖表中形狀或線條的樣式屬性
+            lineChartSeries.ChartShapeProperties = new ChartShapeProperties();
+            lineChartSeries.ChartShapeProperties.AppendChild(new NoFill());
+            // 設定線條顏色為黑色
+            SolidFill solidFill = new SolidFill();
+            RgbColorModelHex rgbColorModelHex = new RgbColorModelHex() { Val = "000000" };
+            solidFill.AppendChild(rgbColorModelHex);
+            lineChartSeries.ChartShapeProperties.AppendChild(solidFill);            
+            // DataLabels：控制顯示數據標籤的元素，數據標籤通常在圖表的資料點旁邊，
+            //             用來顯示該點的具體數值或其他訊息
+            DataLabels dataLabels = lineChartSeries.AppendChild(new DataLabels());
+            // 設定資料點旁會顯示具體數值，加入DataLabels設定
+            dataLabels.AppendChild(new ShowValue() { Val = true });
+            #endregion
+
+            LineChart lineChart = chart.PlotArea.AppendChild(new LineChart());
+
+            // 將折線類型設為折線圖(失敗，沒有ChartType和ChartSubType屬性)            
+            // lineChartSeries.ChartType = lineChart.ChartSubType;
+
+
+            byte[] modifiedDocBytes = memoryStream.ToArray();
+
+            return modifiedDocBytes;
         }
     }
 }

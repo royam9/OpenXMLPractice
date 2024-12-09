@@ -37,12 +37,12 @@ public class HomeController : Controller
 
     [HttpPost]
     [Route("InputChartAtWord")]
-    public IActionResult InputChartAtWord()
+    public async Task<IActionResult> InputChartAtWord()
     {
         string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
 
-        _wordService.AddExcelChartToExistingWordDocument(filePath);
+        var result = await _wordService.AddExcelChartToExistingWordDocument(filePath);
 
-        return Ok();
+        return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "example.docx");
     }
 }

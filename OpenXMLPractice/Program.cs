@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Services;
 using Services.Interfaces;
+using static Services.WordService;
 
 namespace OpenXMLPractice
 {
@@ -59,7 +60,7 @@ namespace OpenXMLPractice
             #endregion
 
             builder.Services.AddScoped<IExcelService, ExcelService>();
-            builder.Services.AddScoped<IWordService, WordService>();
+            builder.Services.AddScoped<IWordService, CSDNSolution>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

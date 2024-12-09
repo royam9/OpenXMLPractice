@@ -5,5 +5,5 @@
 /// </summary>
 public interface IWordService
 {
-    Task AddExcelChartToExistingWordDocument(string filePath);
+    Task<byte[]> AddExcelChartToExistingWordDocument(string filePath);
 }

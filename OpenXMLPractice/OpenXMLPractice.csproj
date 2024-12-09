@@ -15,10 +15,197 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Resources\Teaching\" />
     <Folder Include="Resources\Template\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20201124032511.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20210720083327.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20210720083331.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20210720083512.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20210720083606.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20210720083736.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20221027045535.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20230815023238.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20230825101811.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20240126114815.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20241125014237.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\20241125050229.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\badge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\bot-score-v1.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\clarity.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\collection-box.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\collection-box.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\common.60eb392a.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\common.84b206ab.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\crypto.min.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\cs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\csdn-footer.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\csdn-footer.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\csdn-login-box.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\csdn-toolbar-default.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\csdn-toolbar.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\email.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\fanhuidingbucopy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\file_type_ask_c1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\file_type_column_c1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\file_type_lunwen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\hm.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\icon-loading.b8eaff36.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\icon-send.3681be21.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\index.b4f3b6c7.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\index.cee7a31f.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\kefu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\l61xykzetu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\order-payment.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\order-payment.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\qr.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\qr_app.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\qr_video.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\qr_wechat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\RAR.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\redpack.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\redpack.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\report.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\runtime.64e880f5.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\saved_resource">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\saved_resource%281%29">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\side-toolbar.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\side-toolbar.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\tel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\tingyun.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\trackad.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\user-login.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\user-login.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\user-ordercart.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\user-ordertip.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Teaching\C# Openxml在word的图表中插入一条折线，要设置这条线的图表类型为折线图 - CSDN文库_files\user-ordertip.js.下載">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Template\tryInputChart.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
