@@ -9,15 +9,21 @@ namespace OpenXMLPractice.Controllers;
 public class HomeController : Controller
 {
     private readonly IExcelService _excelService;
-    private readonly IWordService _wordService;
+    private readonly IGeneralService _generalService;
 
     public HomeController(IExcelService excelService, 
-        IWordService wordService)
+        IGeneralService generalService)
     {
         _excelService = excelService;
-        _wordService = wordService;
+        _generalService = generalService;
     }
 
+    /// <summary>
+    /// 在Excel指定儲存格輸入值
+    /// </summary>
+    /// <param name="cellReference">儲存格位置</param>
+    /// <param name="value">值</param>
+    /// <returns></returns>
     [HttpPost]
     [Route("InputExcel")]
     public async Task<IActionResult> InputExcel([FromForm] string cellReference = "B4", [FromForm] string value = "123")
@@ -36,27 +42,39 @@ public class HomeController : Controller
         return File(excelbyte, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "example.xlsx");
     }
 
+    /// <summary>
+    /// 在Word插入折線圖
+    /// </summary>
+    /// <returns></returns>
     [HttpPost]
     [Route("InputChartAtWord")]
     public async Task<IActionResult> InputChartAtWord()
     {
         string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
 
-        var result = await _wordService.AddExcelChartToExistingWordDocument(filePath);
+        var wordTool = new CSDNSolution();
+
+        var result = await wordTool.AddExcelChartToExistingWordDocument(filePath);
 
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "example.docx");
     }
 
+    /// <summary>
+    /// 在Word更新折線圖的數值
+    /// </summary>
+    /// <param name="cellReference"></param>
+    /// <param name="cellValue"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("UpdateLineChartExcelValue")]
-    public async Task<IActionResult> UpdateLineChartExcelValue()
+    public async Task<IActionResult> UpdateLineChartExcelValue([FromForm] string cellReference = "B2", [FromForm] string cellValue = "100")
     {
         string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
 
-        var updateTool = new UpdateLineChartExcelValueSolution();
+        var updateTool = new UpdateLineChartExcelValueSolution(_generalService);
 
-        await updateTool.UpdateLineChartExcelValue(filePath);
+        var result = await updateTool.UpdateLineChartExcelValue(filePath, cellReference, cellValue);
 
-        return Ok();
+        return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "example.docx");
     }
 }

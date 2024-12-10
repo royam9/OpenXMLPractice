@@ -59,8 +59,9 @@ namespace OpenXMLPractice
             });
             #endregion
 
+            builder.Services.AddScoped<IGeneralService, GeneralService>();
+
             builder.Services.AddScoped<IExcelService, ExcelService>();
-            builder.Services.AddScoped<IWordService, CSDNSolution>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -122,7 +122,7 @@ public class WordService
         }
     }
 
-    public class CSDNSolution : IWordService
+    public class CSDNSolution
     {
         public async Task<byte[]> AddExcelChartToExistingWordDocument(string filePath)
         {
@@ -220,7 +220,17 @@ public class WordService
 
     public class UpdateLineChartExcelValueSolution
     {
-        public async Task UpdateLineChartExcelValue(string filePath)
+        /// <summary>
+        /// 通用服務
+        /// </summary>
+        private readonly IGeneralService _generalService;
+
+        public UpdateLineChartExcelValueSolution(IGeneralService generalService)
+        {
+            _generalService = generalService;
+        }
+
+        public async Task<byte[]> UpdateLineChartExcelValue(string filePath, string cellReference, string cellvalue)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using MemoryStream memoryStream = new();
@@ -229,56 +239,60 @@ public class WordService
 
             memoryStream.Position = 0;
 
-            using WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true);
-
-            MainDocumentPart mainPart = wordDoc.MainDocumentPart;
-
-            // 找到文檔中的 ChartPart
-            ChartPart chartPart = wordDoc.MainDocumentPart.ChartParts.FirstOrDefault();
-            EmbeddedPackagePart embeddedExcel = chartPart.EmbeddedPackagePart;
-
-            // 讀取嵌入的 Excel 到 MemoryStream
-            using (MemoryStream excelStream = new MemoryStream())
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true))
             {
-                // 將 Excel 資料讀入 MemoryStream
-                embeddedExcel.GetStream(FileMode.Open, FileAccess.Read).CopyTo(excelStream);
 
-                // 打開嵌入的 Excel 文檔
-                using (SpreadsheetDocument spreadsheetDoc = SpreadsheetDocument.Open(excelStream, true))
+                MainDocumentPart mainPart = wordDoc.MainDocumentPart;
+
+                // 找到文檔中的 ChartPart
+                ChartPart chartPart = wordDoc.MainDocumentPart.ChartParts.FirstOrDefault();
+
+                #region 變更內嵌Excel表單
+                EmbeddedPackagePart embeddedExcel = chartPart.EmbeddedPackagePart;
+
+                // 取得Excel的Stream
+                var excelStream = embeddedExcel.GetStream(FileMode.Open, FileAccess.ReadWrite);
+
+                // 透過SpreadsheetDocument.Open開啟，引數2設為true，可以變更
+                using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(excelStream, true))
                 {
-                    WorkbookPart workbookPart = spreadsheetDoc.WorkbookPart;
-                    Sheet sheet = workbookPart.Workbook.Descendants<Sheet>().FirstOrDefault();
-                    if (sheet != null)
-                    {
-                        WorksheetPart worksheetPart = workbookPart.GetPartById(sheet.Id.Value) as WorksheetPart;
-                        if (worksheetPart != null)
-                        {
-                            // 修改儲存格數據
-                            SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
-                            Row row = sheetData.Elements<Row>().FirstOrDefault(r => r.RowIndex == 2); // 修改第2行
-                            if (row != null)
-                            {
-                                Cell cell = row.Elements<Cell>().FirstOrDefault(c => c.CellReference.Value == "B2"); // 修改 B2
-                                if (cell != null)
-                                {
-                                    cell.CellValue = new CellValue("150");
-                                    cell.DataType = new EnumValue<CellValues>(CellValues.Number);
-                                }
-                            }
+                    // 取得WorkbookPart
+                    var workbookPart = spreadsheetDocument.WorkbookPart;
+                    // 取得第一個WorksheetPart
+                    var worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+                    // 取得第一個SheetData
+                    var sheetData = worksheetPart.Worksheet.Elements<SheetData>().FirstOrDefault();
+                    var targetRow = sheetData.Elements<Row>().FirstOrDefault(r => r.RowIndex == _generalService.GetRowIndex(cellReference));
+                    var targetCell = targetRow.Elements<Cell>().FirstOrDefault(c => c.CellReference == cellReference);
 
-                            // 保存更改
-                            worksheetPart.Worksheet.Save();
-                        }
-                    }
-                }
+                    targetCell.CellValue = new CellValue(cellvalue);
+                    targetCell.DataType = new EnumValue<CellValues>(CellValues.Number); // 指定數值類型
 
-                // 將修改後的 Excel 資料寫回到嵌入部分
-                excelStream.Seek(0, SeekOrigin.Begin); // 重置Stream
-                using (Stream excelPartStream = embeddedExcel.GetStream(FileMode.Create, FileAccess.Write))
-                {
-                    excelStream.CopyTo(excelPartStream); // 寫回嵌入部分
+                    worksheetPart.Worksheet.Save();
                 }
+                #endregion
+
+                #region 同步變更變更快取
+                var SeriesList = chartPart.ChartSpace.Descendants<LineChartSeries>().ToList();
+
+                // 我要找第一條 第一條就是A2A5 + B2B5
+                // 他會是第一個LineChartSeries
+                var targetlineChartSeries = chartPart.ChartSpace.Descendants<LineChartSeries>().FirstOrDefault();
+                // 找到裡面記載Values(數值資訊)的板塊
+                // ※不能直接找LineChartSeries的Descendants<NumericPoint>，除了Values以外還有其他子節點有NumericPoint
+                var values = targetlineChartSeries.Elements<Values>().FirstOrDefault();
+                // Values裡面的NumerPoint就是對應該條線上的每一個點
+                // 這邊找第一個點(B2)
+                var targetnumericPoint = values.Descendants<NumericPoint>().FirstOrDefault();
+                targetnumericPoint.NumericValue.Text = cellvalue;
+
+                chartPart.ChartSpace.Save();
+                #endregion
             }
+
+            //memoryStream.Position = 0;
+
+            return memoryStream.ToArray();
         }
     }
 }

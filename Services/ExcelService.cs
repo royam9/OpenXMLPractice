@@ -10,6 +10,13 @@ namespace Services;
 /// </summary>
 public class ExcelService : IExcelService
 {
+    private readonly IGeneralService _generalService;
+
+    public ExcelService(IGeneralService generalService)
+    {
+        _generalService = generalService;
+    }
+
     /// <summary>
     /// 輸入值進儲存格
     /// </summary>
@@ -57,15 +64,15 @@ public class ExcelService : IExcelService
     /// <param name="worksheet"></param>
     /// <param name="cellReference">儲存格位置</param>
     /// <returns></returns>
-    private static Cell GetOrCreateCell(Worksheet worksheet, string cellReference)
+    private  Cell GetOrCreateCell(Worksheet worksheet, string cellReference)
     {
         SheetData sheetData = worksheet.GetFirstChild<SheetData>();
         Row row = sheetData.Elements<Row>()
-            .FirstOrDefault(r => r.RowIndex == GetRowIndex(cellReference));
+            .FirstOrDefault(r => r.RowIndex == _generalService.GetRowIndex(cellReference));
 
         if (row == null)
         {
-            row = new Row { RowIndex = GetRowIndex(cellReference) };
+            row = new Row { RowIndex = _generalService.GetRowIndex(cellReference) };
             sheetData.Append(row);
         }
 
@@ -79,16 +86,5 @@ public class ExcelService : IExcelService
         }
 
         return cell;
-    }
-
-    /// <summary>
-    /// 取得 儲存格位置 中的行號(數字部分)
-    /// </summary>
-    /// <param name="cellReference">儲存格位置</param>
-    /// <returns>無符號整數 (代表不會是負的)</returns>
-    private static uint GetRowIndex(string cellReference)
-    {
-        string rowPart = new string(cellReference.Where(char.IsDigit).ToArray());
-        return uint.Parse(rowPart);
     }
 }
