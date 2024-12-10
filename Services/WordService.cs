@@ -272,7 +272,7 @@ public class WordService
                 }
                 #endregion
 
-                #region 同步變更變更快取
+                #region 同步變更快取
                 var SeriesList = chartPart.ChartSpace.Descendants<LineChartSeries>().ToList();
 
                 // 我要找第一條 第一條就是A2A5 + B2B5
