@@ -31,7 +31,7 @@ public class HomeController : Controller
     {
         string filePath, sheetName;
 
-        filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryLineChart.xlsx";
+        filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Template", "tryLineChart.xlsx");
         sheetName = "Table01";
 
         var excelbyte = await _excelService.InsertValueIntoCell(
@@ -51,7 +51,7 @@ public class HomeController : Controller
     [Route("InputChartAtWord")]
     public async Task<IActionResult> InputChartAtWord()
     {
-        string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Template", "tryInputChart.docx");
 
         var wordTool = new CSDNSolution();
 
@@ -70,7 +70,7 @@ public class HomeController : Controller
     [Route("UpdateLineChartExcelValue")]
     public async Task<IActionResult> UpdateLineChartExcelValue([FromForm] string cellReference = "B2", [FromForm] string cellValue = "100")
     {
-        string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Template", "tryInputChart.docx");
 
         var updateTool = new UpdateLineChartExcelValueSolution(_generalService);
 
@@ -91,7 +91,7 @@ public class HomeController : Controller
     [Route("UpdateChartExcelValue")]
     public async Task<IActionResult> UpdateChartExcelValue([FromBody] UpdateChartExcelValueRequestModel param)
     {
-        string filePath = @"C:\Users\TWJOIN\Desktop\UnknowProject\tryInputChart.docx";
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "Template", "tryInputChart.docx");
 
         if (string.IsNullOrEmpty(param.ChartTitle))
             param.ChartTitle = "特性成長趨勢圖";

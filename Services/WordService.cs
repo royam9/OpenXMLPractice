@@ -372,12 +372,21 @@ public class WordService
 
                 for (int c = 0; c < cells.Count; c++)
                 {
-                    var cell = cells[c];
+                    Cell cell = cells[c];
+                    string? value = param.ElementAtOrDefault(i - 1)?.ElementAtOrDefault(c);
+
+                    // 如果沒有對應項目，將表格設為空
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        cell.CellValue = new CellValue();
+                        continue;
+                    }
+
                     // 第一行對應參數位置0的List<string>
-                    if (c ==0)
-                        cell.CellValue = new CellValue(_generalService.ConvertToExcelDate(param[i - 1][c]).ToString());
+                    if (c == 0)
+                        cell.CellValue = new CellValue(_generalService.ConvertToExcelDate(value).ToString());
                     else
-                        cell.CellValue = new CellValue(param[i - 1][c]);
+                        cell.CellValue = new CellValue(value);
                 }
             }
 
@@ -410,7 +419,17 @@ public class WordService
 
                         for (int j = 0; j < numericPoints.Count; j++)
                         {
-                            numericPoints[j].NumericValue.Text = _generalService.ConvertToExcelDate(param[j][0]).ToString();
+                            // 如果無對應X軸資料，該項目設為空
+                            string? value = param.ElementAtOrDefault(j)?.ElementAtOrDefault(0);
+
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                numericPoints[j].NumericValue.Text = string.Empty;
+                                // 使用continue確保無數值的格子被設為空
+                                continue;
+                            }
+
+                            numericPoints[j].NumericValue.Text = _generalService.ConvertToExcelDate(value).ToString();
                         }
                     }
                     // 第二個NumberingCache，在Point填入X軸對應的Y軸數值
@@ -420,14 +439,22 @@ public class WordService
 
                         for (int j = 0; j < numericPoints.Count; j++)
                         {
+                            string? value = param.ElementAtOrDefault(j)?.ElementAtOrDefault(i + 1);
+
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                numericPoints[j].NumericValue.Text = string.Empty;
+                                continue;
+                            }
+
                             // 每行第一個是x軸 所以i+1
-                            numericPoints[j].NumericValue.Text = param[j][i+1];
+                            numericPoints[j].NumericValue.Text = value;
                         }
                     }
-                }                
+                }
             }
 
             targetChartPart.ChartSpace.Save();
-        }        
+        }
     }
 }
