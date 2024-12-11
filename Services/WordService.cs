@@ -13,6 +13,7 @@ using Values = DocumentFormat.OpenXml.Drawing.Charts.Values;
 using Outline = DocumentFormat.OpenXml.Drawing.Outline;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Models;
 
 namespace Services;
 
@@ -294,5 +295,139 @@ public class WordService
 
             return memoryStream.ToArray();
         }
+
+        /// <summary>
+        /// 更新圖表
+        /// </summary>
+        /// <param name="filePath">檔案路徑</param>
+        /// <param name="chartTitle">圖表名稱</param>
+        /// <param name="param">輸入參數</param>
+        /// <returns></returns>
+        public async Task<byte[]> UpdateChart(string filePath, string chartTitle, List<List<string>> param)
+        {
+            using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
+            using MemoryStream memoryStream = new();
+
+            await fileStream.CopyToAsync(memoryStream);
+
+            memoryStream.Position = 0;
+            using WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true);
+
+            // 尋找目標ChartPart
+            ChartPart? targetChartPart = GetChartPart(chartTitle, wordDoc);
+
+            UpdateInnerExcel(param, targetChartPart);
+
+            UpdateCache(param, targetChartPart);
+
+            wordDoc.Save();
+            wordDoc.Dispose();
+
+            return memoryStream.ToArray();
+        }
+
+        private static ChartPart GetChartPart(string chartTitle, WordprocessingDocument wordDoc)
+        {
+            ChartPart? targetChartPart = null;
+
+            foreach (var chartPart in wordDoc.MainDocumentPart.ChartParts)
+            {
+                var title = chartPart.ChartSpace.Elements<Chart>().FirstOrDefault()?.Title?.InnerText;
+
+                if (title == chartTitle)
+                    targetChartPart = chartPart;
+            }
+
+            if (targetChartPart == null)
+                throw new Exception(string.Format(ErrorMessages.DataNotFound, "目標圖表"));
+
+            return targetChartPart;
+        }
+
+        private void UpdateInnerExcel(List<List<string>> param, ChartPart? targetChartPart)
+        {
+            EmbeddedPackagePart embeddedExcel = targetChartPart.EmbeddedPackagePart;
+
+            // 取得Excel的Stream
+            var excelStream = embeddedExcel.GetStream(FileMode.Open, FileAccess.ReadWrite);
+
+            using SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(excelStream, true);
+            // 取得WorkbookPart
+            var workbookPart = spreadsheetDocument.WorkbookPart;
+            // 取得第一個WorksheetPart
+            var worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+            // 取得第一個SheetData
+            var sheetData = worksheetPart.Worksheet.Elements<SheetData>().FirstOrDefault();
+
+            var rows = sheetData.Elements<Row>().ToList();
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                // 第一行是標題，不用填
+                if (i == 0)
+                    continue;
+
+                Row row = rows[i];
+                var cells = row.Elements<Cell>().ToList();
+
+                for (int c = 0; c < cells.Count; c++)
+                {
+                    var cell = cells[c];
+                    // 第一行對應參數位置0的List<string>
+                    if (c ==0)
+                        cell.CellValue = new CellValue(_generalService.ConvertToExcelDate(param[i - 1][c]).ToString());
+                    else
+                        cell.CellValue = new CellValue(param[i - 1][c]);
+                }
+            }
+
+            worksheetPart.Worksheet.Save();
+        }
+
+        private void UpdateCache(List<List<string>> param, ChartPart? targetChartPart)
+        {
+            var SeriesList = targetChartPart.ChartSpace.Descendants<LineChartSeries>().ToList();
+
+            for (int i = 0; i < SeriesList.Count; i++)
+            {
+                var series = SeriesList[i];
+
+                // 一條線(Series)有兩個NumberingCache，一個紀錄X軸數值
+                // 一個紀錄X軸對應的Y軸數值
+                var numberingCaches = series.Descendants<NumberingCache>().ToList();
+
+                for (int nc = 0; nc < numberingCaches.Count; nc++)
+                {
+                    var numberingCache = numberingCaches[nc];
+
+                    var numericPoints = numberingCache.Descendants<NumericPoint>().ToList();
+
+                    // 第一個NumberingCache，在Point填入X軸數值(每個List<string>的第一個string)
+                    if (nc == 0)
+                    {
+                        // 將X軸格式改為通用
+                        numberingCache.FormatCode.Text = "yyyy-mm-dd";
+
+                        for (int j = 0; j < numericPoints.Count; j++)
+                        {
+                            numericPoints[j].NumericValue.Text = _generalService.ConvertToExcelDate(param[j][0]).ToString();
+                        }
+                    }
+                    // 第二個NumberingCache，在Point填入X軸對應的Y軸數值
+                    else
+                    {
+                        numberingCache.FormatCode.Text = "0.##";
+
+                        for (int j = 0; j < numericPoints.Count; j++)
+                        {
+                            // 每行第一個是x軸 所以i+1
+                            numericPoints[j].NumericValue.Text = param[j][i+1];
+                        }
+                    }
+                }                
+            }
+
+            targetChartPart.ChartSpace.Save();
+        }        
     }
 }

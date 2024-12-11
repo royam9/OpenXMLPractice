@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Services;
 using Services.Interfaces;
+using System.Reflection;
 using static Services.WordService;
 
 namespace OpenXMLPractice
@@ -18,12 +19,11 @@ namespace OpenXMLPractice
                 //啟用SwaggerResponse註解
                 //swagger.EnableAnnotations();
 
-                //swagger.SwaggerDoc("v1", new OpenApiInfo
-                //{
-                //    Title = "Api",
-                //    Version = "v1",
-                //    Description = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Swagger", "SwaggerDescription.html"))
-                //});
+                swagger.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Api",
+                    Version = "v1",
+                });
 
                 // To Enable authorization using Swagger (JWT)    
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -52,10 +52,13 @@ namespace OpenXMLPractice
                 });
 
                 // 增加 data 描述
-                //var apiXmlPath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
-                //var modelXmlPath = Path.Combine(AppContext.BaseDirectory, "Models.xml");
-                //swagger.IncludeXmlComments(apiXmlPath);
-                //swagger.IncludeXmlComments(modelXmlPath);
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                swagger.IncludeXmlComments(xmlPath);
+
+                var modelXmlPath = Path.Combine(AppContext.BaseDirectory, "Models.xml");
+                swagger.IncludeXmlComments(modelXmlPath);
             });
             #endregion
 

@@ -52,8 +52,15 @@ public class ExcelService : IExcelService
 
         // 插入值並更新檔案
         cell.CellValue = new CellValue(value);
-        cell.DataType = new EnumValue<CellValues>(CellValues.Number); // 指定數值類型
+
+        // 根據值指定輸入的儲存格類型
+        if (int.TryParse(value, out _))
+            cell.DataType = new EnumValue<CellValues>(CellValues.Number); 
+        else
+            cell.DataType = new EnumValue<CellValues>(CellValues.String);
+
         worksheetPart.Worksheet.Save();
+        document.Dispose();
 
         return memoryStream.ToArray();
     }
