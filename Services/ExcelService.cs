@@ -55,7 +55,7 @@ public class ExcelService : IExcelService
 
         // 根據值指定輸入的儲存格類型
         if (int.TryParse(value, out _))
-            cell.DataType = new EnumValue<CellValues>(CellValues.Number); 
+            cell.DataType = new EnumValue<CellValues>(CellValues.Number);
         else
             cell.DataType = new EnumValue<CellValues>(CellValues.String);
 
@@ -71,7 +71,7 @@ public class ExcelService : IExcelService
     /// <param name="worksheet"></param>
     /// <param name="cellReference">儲存格位置</param>
     /// <returns></returns>
-    private  Cell GetOrCreateCell(Worksheet worksheet, string cellReference)
+    private Cell GetOrCreateCell(Worksheet worksheet, string cellReference)
     {
         SheetData sheetData = worksheet.GetFirstChild<SheetData>();
         Row row = sheetData.Elements<Row>()
