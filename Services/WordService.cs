@@ -326,6 +326,13 @@ public class WordService
             return memoryStream.ToArray();
         }
 
+        /// <summary>
+        /// 取得目標圖表Part
+        /// </summary>
+        /// <param name="chartTitle">圖表標題</param>
+        /// <param name="wordDoc">文件主體</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">找不到目標圖表</exception>
         private static ChartPart GetChartPart(string chartTitle, WordprocessingDocument wordDoc)
         {
             ChartPart? targetChartPart = null;
@@ -344,6 +351,11 @@ public class WordService
             return targetChartPart;
         }
 
+        /// <summary>
+        /// 更新內嵌圖表的Excel
+        /// </summary>
+        /// <param name="param">輸入參數</param>
+        /// <param name="targetChartPart">目標圖表Part</param>
         private void UpdateInnerExcel(List<List<string>> param, ChartPart? targetChartPart)
         {
             EmbeddedPackagePart embeddedExcel = targetChartPart.EmbeddedPackagePart;
@@ -393,6 +405,11 @@ public class WordService
             worksheetPart.Worksheet.Save();
         }
 
+        /// <summary>
+        /// 更新圖表快取 (快取影響圖表顯示)
+        /// </summary>
+        /// <param name="param">輸入參數</param>
+        /// <param name="targetChartPart">目標圖表Part</param>
         private void UpdateCache(List<List<string>> param, ChartPart? targetChartPart)
         {
             var SeriesList = targetChartPart.ChartSpace.Descendants<LineChartSeries>().ToList();

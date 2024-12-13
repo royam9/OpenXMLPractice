@@ -2,6 +2,9 @@
 
 namespace Services;
 
+/// <summary>
+/// 通用服務
+/// </summary>
 public class GeneralService : IGeneralService
 {
     /// <summary>
