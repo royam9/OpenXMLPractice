@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
+using Services;
 using Services.Interfaces;
 using static Services.WordService;
 
@@ -111,5 +112,23 @@ public class HomeController : Controller
         var result = await updateTool.UpdateChart(filePath, param.ChartTitle, param.InputData);
 
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "example.docx");
+    }
+
+    /// <summary>
+    /// 在Word新增浮水印
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("InsertWatermarkInWord")]
+    public async Task<IActionResult> InsertWatermarkInWord()
+    {
+        var tool = new WordWatermarkService();
+
+        string docPath = @"C:\Users\TWJOIN\Desktop\安寶\Hi.docx";
+        string picPath = @"C:\Users\TWJOIN\Desktop\安寶\安寶報告章.驗收章.png";
+
+        tool.InsertWatermark(docPath, picPath);
+
+        return Ok();
     }
 }
