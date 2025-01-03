@@ -127,8 +127,8 @@ public class HomeController : Controller
         string docPath = @"C:\Users\TWJOIN\Desktop\安寶\Hi.docx";
         string picPath = @"C:\Users\TWJOIN\Desktop\安寶\安寶報告章.驗收章.png";
 
-        tool.InsertWatermark(docPath, picPath);
+        var result = tool.InsertWatermark(docPath, picPath);
 
-        return Ok();
+        return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "outputTest.docx");
     }
 }
