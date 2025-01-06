@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using Services;
 using Services.Interfaces;
+using System.IO;
 using static Services.WordService;
 
 namespace OpenXMLPractice.Controllers;
@@ -127,8 +130,20 @@ public class HomeController : Controller
         string docPath = @"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\Hi.docx";
         string picPath = @"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\安寶報告章.驗收章.png";
 
-        var result = tool.InsertWatermark1(docPath, picPath);
+        var result = await tool.InsertWatermark2(docPath, picPath);
 
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "outputTest.docx");
+    }
+
+    [HttpPost]
+    [Route("GetInnerXML")]
+    public async Task<IActionResult> GetInnerXML([FromForm] GetInnerXMLRequestModel param)
+    {
+        using MemoryStream memoryStream = new();
+        await param.File.CopyToAsync(memoryStream);
+        using WordprocessingDocument package = WordprocessingDocument.Open(memoryStream, true);
+        MainDocumentPart? mainDocPart = package.MainDocumentPart;
+        Body? body = mainDocPart?.Document.Body;
+        return Ok();
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models
 {
@@ -9,6 +11,12 @@ namespace Models
         public string? ChartTitle { get; set; }
         [DefaultValue(null)]
         public List<List<string>>? InputData { get; set; }
+    }
+
+    public class GetInnerXMLRequestModel
+    {
+        [Required]
+        public IFormFile File { get; set; } = null!;
     }
     #endregion
 
