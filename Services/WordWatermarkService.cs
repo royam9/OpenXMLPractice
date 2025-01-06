@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using V = DocumentFormat.OpenXml.Vml;
 using System.Diagnostics;
+using DocumentFormat.OpenXml.Vml;
 
 namespace Services
 {
@@ -40,7 +41,7 @@ namespace Services
             // 取得圖片的base64字串
             SetWaterMarkPicture(picPath);
 
-            MainDocumentPart mainDocumentPart = package.MainDocumentPart;
+            MainDocumentPart? mainDocumentPart = package.MainDocumentPart;
 
             if (mainDocumentPart != null)
             {
@@ -97,7 +98,7 @@ namespace Services
                 //"mso-position-vertical-relative:margin",
                 OptionalString = "_x0000_s2051",
                 AllowInCell = false,
-                Type = "#_x0000_t75"
+                Type = "#_x0000_t75"                
             };
             V.ImageData imageData = new V.ImageData()
             {
@@ -106,7 +107,9 @@ namespace Services
                 Title = "水印",
                 RelationshipId = "rId999" // 目標ImagePartRId
             };
+            Stroke stroke = new Stroke() { On = false}; // 關閉外框
 
+            shape.AppendChild(stroke);
             shape.Append(imageData);
             picture.Append(shape);
             run.Append(picture);
@@ -119,6 +122,7 @@ namespace Services
         /// 填入圖片Part內容
         /// </summary>
         /// <param name="imagePart">ImagePart</param>
+        /// <remarks>flieStream > bytes > base64 > bytes > memoryStream</remarks>
         private void GenerateImagePartContent(ImagePart imagePart)
         {
             System.IO.Stream data = GetBinaryDataStream(imagePartData);
@@ -193,15 +197,15 @@ namespace Services
             // 其他的位於 Paragraph > SectionProperties > HeaderReference
             // 如果該節沒有訂義HeaderReference，會向上繼承
             // 所以最後尾如果不想要有浮水印，要自己創一個空的
-            List<SectionProperties> sectPrs = mainDocumentPart.Document.Body.Descendants<SectionProperties>().ToList();
+            List<SectionProperties>? sectPrs = mainDocumentPart.Document.Body?.Descendants<SectionProperties>().ToList();
 
-            for (int i = 0; i < sectPrs.Count(); i++)
+            for (int i = 0; i < sectPrs?.Count; i++)
             {
                 var sectPr = sectPrs[i];
 
                 sectPr.RemoveAllChildren<HeaderReference>();
 
-                if (i != sectPrs.Count() - 1)
+                if (i != sectPrs.Count - 1)
                 {
                     sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId });
                 }
@@ -223,7 +227,7 @@ namespace Services
         /// <param name="docPath">模板文件路徑</param>
         /// <param name="picPath">浮水印圖片路徑</param>
         /// <returns>文件數據</returns>
-        public async Task<byte[]> InsertWatermark(string docPath, string picPath)
+        public async Task<byte[]> InsertWatermark2(string docPath, string picPath)
         {
             using FileStream fileStream = new(docPath, FileMode.Open);
             using MemoryStream memoryStream = new();
@@ -281,17 +285,14 @@ namespace Services
         /// </summary>
         /// <param name="imagePart">ImagePart</param>
         /// <param name="picPath">圖片路徑</param>
-        /// <remarks>flieStream > bytes > base64 > bytes > memoryStream</remarks>
         private async Task GenerateImagePartContent(ImagePart imagePart, string picPath)
         {
             using FileStream fileStream = new(picPath, FileMode.Open, FileAccess.Read);
-            byte[] imageBytes = new byte[fileStream.Length];
-            await fileStream.ReadAsync(imageBytes);
+            fileStream.Position = 0;
+            using MemoryStream memoryStream = new();
+            await fileStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
 
-            string imageBase64 = Convert.ToBase64String(imageBytes);
-            byte[] imageBase64Bytes = Convert.FromBase64String(imageBase64);
-
-            using MemoryStream memoryStream = new(imageBase64Bytes);
             imagePart.FeedData(memoryStream);
         }
         #endregion
