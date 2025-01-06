@@ -51,7 +51,7 @@ namespace Services
                 HeaderPart headPart = mainDocumentPart.AddNewPart<HeaderPart>();
 
                 // 在HeaderParts裡設定Header，繪製浮水印區塊
-                GenerateHeaderPart1Content(headPart);
+                GenerateHeaderPartContent(headPart);
 
                 // 取得該part的relationshipId
                 string rId = mainDocumentPart.GetIdOfPart(headPart);
@@ -74,7 +74,7 @@ namespace Services
         /// 產生頁首內容
         /// </summary>
         /// <param name="headerPart">頁首Part</param>
-        private void GenerateHeaderPart1Content(HeaderPart headerPart)
+        private void GenerateHeaderPartContent(HeaderPart headerPart)
         {
             Header header = new Header();
             Paragraph paragraph = new Paragraph();
@@ -227,7 +227,7 @@ namespace Services
         {
             using FileStream fileStream = new(docPath, FileMode.Open);
             using MemoryStream memoryStream = new();
-            fileStream.CopyTo(memoryStream);
+            await fileStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 
             using (WordprocessingDocument package = WordprocessingDocument.Open(memoryStream, true))
@@ -246,7 +246,7 @@ namespace Services
         /// <exception cref="Exception"></exception>
         private async Task InsertCustomWatermark2(WordprocessingDocument package, string picPath)
         {
-            MainDocumentPart mainDocumentPart1 = package.MainDocumentPart;
+            MainDocumentPart? mainDocumentPart1 = package.MainDocumentPart;
 
             if (mainDocumentPart1 != null)
             {
@@ -257,7 +257,7 @@ namespace Services
                 HeaderPart headPart1 = mainDocumentPart1.AddNewPart<HeaderPart>();
 
                 // 在HeaderParts裡設定Header，繪製浮水印區塊
-                GenerateHeaderPart1Content(headPart1);
+                GenerateHeaderPartContent(headPart1);
 
                 // 取得該part的relationshipId
                 string rId = mainDocumentPart1.GetIdOfPart(headPart1);
@@ -286,8 +286,7 @@ namespace Services
         {
             using FileStream fileStream = new(picPath, FileMode.Open, FileAccess.Read);
             byte[] imageBytes = new byte[fileStream.Length];
-
-            await fileStream.ReadAsync(imageBytes, 0, imageBytes.Length);
+            await fileStream.ReadAsync(imageBytes);
 
             string imageBase64 = Convert.ToBase64String(imageBytes);
             byte[] imageBase64Bytes = Convert.FromBase64String(imageBase64);
