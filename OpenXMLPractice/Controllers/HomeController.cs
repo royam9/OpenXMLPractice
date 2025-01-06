@@ -124,10 +124,10 @@ public class HomeController : Controller
     {
         var tool = new WordWatermarkService();
 
-        string docPath = @"C:\Users\TWJOIN\Desktop\安寶\Hi.docx";
-        string picPath = @"C:\Users\TWJOIN\Desktop\安寶\安寶報告章.驗收章.png";
+        string docPath = @"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\Hi.docx";
+        string picPath = @"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\安寶報告章.驗收章.png";
 
-        var result = tool.InsertWatermark(docPath, picPath);
+        var result = tool.InsertWatermark1(docPath, picPath);
 
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "outputTest.docx");
     }

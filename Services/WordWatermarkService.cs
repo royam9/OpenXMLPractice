@@ -1,6 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml;
 using V = DocumentFormat.OpenXml.Vml;
 using System.Diagnostics;
 
@@ -8,7 +7,14 @@ namespace Services
 {
     public class WordWatermarkService
     {
-        public byte[] InsertWatermark(string docPath, string picPath)
+        #region 原版
+        /// <summary>
+        /// 加入浮水印
+        /// </summary>
+        /// <param name="docPath">模板文件路徑</param>
+        /// <param name="picPath">浮水印圖片路徑</param>
+        /// <returns>文件數據</returns>
+        public byte[] InsertWatermark1(string docPath, string picPath)
         {
             using FileStream fileStream = new(docPath, FileMode.Open);
             using MemoryStream memoryStream = new();
@@ -17,65 +23,64 @@ namespace Services
 
             using (WordprocessingDocument package = WordprocessingDocument.Open(memoryStream, true))
             {
-                InsertCustomWatermark(package, picPath);
+                InsertCustomWatermark1(package, picPath);
             }
 
             return memoryStream.ToArray();
         }
 
-        private void InsertCustomWatermark(WordprocessingDocument package, string p)
+        /// <summary>
+        /// 加入客製浮水印 - 有將圖片轉成base64的版本
+        /// </summary>
+        /// <param name="package">文件主體</param>
+        /// <param name="picPath">圖片路徑</param>
+        /// <exception cref="Exception"></exception>
+        private void InsertCustomWatermark1(WordprocessingDocument package, string picPath)
         {
             // 取得圖片的base64字串
-            SetWaterMarkPicture(p);
-            MainDocumentPart mainDocumentPart1 = package.MainDocumentPart;
-            if (mainDocumentPart1 != null)
+            SetWaterMarkPicture(picPath);
+
+            MainDocumentPart mainDocumentPart = package.MainDocumentPart;
+
+            if (mainDocumentPart != null)
             {
                 // 刪除原本的HeaderParts
-                mainDocumentPart1.DeleteParts(mainDocumentPart1.HeaderParts);
-                // 新增新的HeaderParts
-                HeaderPart headPart1 = mainDocumentPart1.AddNewPart<HeaderPart>();
+                mainDocumentPart.DeleteParts(mainDocumentPart.HeaderParts);
+
+                // 創建新的HeaderParts
+                HeaderPart headPart = mainDocumentPart.AddNewPart<HeaderPart>();
+
                 // 在HeaderParts裡設定Header，繪製浮水印區塊
-                GenerateHeaderPart1Content(headPart1);
+                GenerateHeaderPart1Content(headPart);
+
                 // 取得該part的relationshipId
-                string rId = mainDocumentPart1.GetIdOfPart(headPart1);
-                // 新增For Image的Part
-                ImagePart image = headPart1.AddNewPart<ImagePart>("image/png", "rId999");
+                string rId = mainDocumentPart.GetIdOfPart(headPart);
+
+                // 創建For Image的Part
+                ImagePart image = headPart.AddNewPart<ImagePart>("image/png", "rId999");
+
                 // 輸入Image的數據
-                GenerateImagePart1Content(image);
-                // 透過段落的HeaderReference指向目標HeaderPart
-                //IEnumerable<SectionProperties> sectPrs = mainDocumentPart1.Document.Body.Elements<SectionProperties>();
-                //foreach (var sectPr in sectPrs)
-                //{
-                //    // sectPr.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                GenerateImagePartContent(image);
 
-                //    sectPr.RemoveAllChildren<HeaderReference>();
-                //    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId });
-                //    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId });
-                //    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId });
-                //}
-
-                IEnumerable<SectionProperties> sectPrs = mainDocumentPart1.Document.Body.Descendants<SectionProperties>();
-                foreach (var sectPr in sectPrs)
-                {
-                    sectPr.RemoveAllChildren<HeaderReference>();
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId });
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId });
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId });
-                }
+                SetHeaderPartReference(mainDocumentPart, rId);
             }
-            //else
-            //{
-            //    MessageBox.Show("alert");
-            //}
+            else
+            {
+                throw new Exception("文件無內容");
+            }
         }
 
-        private void GenerateHeaderPart1Content(HeaderPart headerPart1)
+        /// <summary>
+        /// 產生頁首內容
+        /// </summary>
+        /// <param name="headerPart">頁首Part</param>
+        private void GenerateHeaderPart1Content(HeaderPart headerPart)
         {
-            Header header1 = new Header();
-            Paragraph paragraph2 = new Paragraph();
-            Run run1 = new Run();
-            Picture picture1 = new Picture();
-            V.Shape shape1 = new V.Shape()
+            Header header = new Header();
+            Paragraph paragraph = new Paragraph();
+            Run run = new Run();
+            Picture picture = new Picture();
+            V.Shape shape = new V.Shape()
             {
                 Id = "WordPictureWatermark75517470",
                 Style = "position:absolute;" +
@@ -94,35 +99,52 @@ namespace Services
                 AllowInCell = false,
                 Type = "#_x0000_t75"
             };
-            V.ImageData imageData1 = new V.ImageData()
+            V.ImageData imageData = new V.ImageData()
             {
                 Gain = "1da1ce", // 鮮紅: 21dd7e
                 BlackLevel = "200000",
                 Title = "水印",
-                RelationshipId = "rId999"
+                RelationshipId = "rId999" // 目標ImagePartRId
             };
-            shape1.Append(imageData1);
-            picture1.Append(shape1);
-            run1.Append(picture1);
-            paragraph2.Append(run1);
-            header1.Append(paragraph2);
-            headerPart1.Header = header1;
+
+            shape.Append(imageData);
+            picture.Append(shape);
+            run.Append(picture);
+            paragraph.Append(run);
+            header.Append(paragraph);
+            headerPart.Header = header;
         }
 
-        private void GenerateImagePart1Content(ImagePart imagePart1)
+        /// <summary>
+        /// 填入圖片Part內容
+        /// </summary>
+        /// <param name="imagePart">ImagePart</param>
+        private void GenerateImagePartContent(ImagePart imagePart)
         {
-            System.IO.Stream data = GetBinaryDataStream(imagePart1Data);
-            imagePart1.FeedData(data);
+            System.IO.Stream data = GetBinaryDataStream(imagePartData);
+            imagePart.FeedData(data);
             data.Close();
         }
 
-        private string imagePart1Data = "";
+        /// <summary>
+        /// 圖片base64字串
+        /// </summary>
+        private string imagePartData = "";
 
+        /// <summary>
+        /// base64字串讀取進Stream
+        /// </summary>
+        /// <param name="base64String">base64字串</param>
+        /// <returns>Stream</returns>
         private System.IO.Stream GetBinaryDataStream(string base64String)
         {
             return new System.IO.MemoryStream(System.Convert.FromBase64String(base64String));
         }
 
+        /// <summary>
+        /// 讀取浮水印圖片
+        /// </summary>
+        /// <param name="file">浮水印圖片路徑</param>
         public void SetWaterMarkPicture(string file)
         {
             FileStream inFile;
@@ -133,12 +155,146 @@ namespace Services
                 byteArray = new byte[inFile.Length];
                 long byteRead = inFile.Read(byteArray, 0, (int)inFile.Length);
                 inFile.Close();
-                imagePart1Data = Convert.ToBase64String(byteArray, 0, byteArray.Length);
+                imagePartData = Convert.ToBase64String(byteArray, 0, byteArray.Length);
             }
             catch (Exception ex)
             {
                 Debug.Print(ex.Message);
             }
         }
+
+        /// <summary>
+        /// 生成空的HeaderPart
+        /// </summary>
+        /// <param name="mainDocumentPart">MainDocumentPart</param>
+        /// <returns>空的HeaderPart</returns>
+        private HeaderPart CreateBlankHeader(MainDocumentPart mainDocumentPart)
+        {
+            var headerPart = mainDocumentPart.AddNewPart<HeaderPart>();
+            Header header = new Header();
+            Paragraph paragraph = new Paragraph();
+            Run run = new Run();
+            paragraph.Append(run);
+            header.Append(paragraph);
+            headerPart.Header = header;
+
+            return headerPart;
+        }
+
+        /// <summary>
+        /// 繫結MainDocumentPart與目標HeaderPart
+        /// </summary>
+        /// <param name="mainDocumentPart">MainDocumentPart</param>
+        /// <param name="rId">目標HeaderPart rId</param>
+        /// <remarks>最後一節之外皆加入水印</remarks>
+        private void SetHeaderPartReference(MainDocumentPart mainDocumentPart, string rId)
+        {
+            // Body下的SectionProperties > HeaderReference 只控制最後一節
+            // 其他的位於 Paragraph > SectionProperties > HeaderReference
+            // 如果該節沒有訂義HeaderReference，會向上繼承
+            // 所以最後尾如果不想要有浮水印，要自己創一個空的
+            List<SectionProperties> sectPrs = mainDocumentPart.Document.Body.Descendants<SectionProperties>().ToList();
+
+            for (int i = 0; i < sectPrs.Count(); i++)
+            {
+                var sectPr = sectPrs[i];
+
+                sectPr.RemoveAllChildren<HeaderReference>();
+
+                if (i != sectPrs.Count() - 1)
+                {
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId });
+                }
+                else
+                {
+                    var blankHeaderPart = CreateBlankHeader(mainDocumentPart);
+                    string blankHeaderPartRid = mainDocumentPart.GetIdOfPart(blankHeaderPart);
+
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = blankHeaderPartRid });
+                }
+            }
+        }
+        #endregion
+
+        #region 新版
+        /// <summary>
+        /// 加入浮水印
+        /// </summary>
+        /// <param name="docPath">模板文件路徑</param>
+        /// <param name="picPath">浮水印圖片路徑</param>
+        /// <returns>文件數據</returns>
+        public async Task<byte[]> InsertWatermark(string docPath, string picPath)
+        {
+            using FileStream fileStream = new(docPath, FileMode.Open);
+            using MemoryStream memoryStream = new();
+            fileStream.CopyTo(memoryStream);
+            memoryStream.Position = 0;
+
+            using (WordprocessingDocument package = WordprocessingDocument.Open(memoryStream, true))
+            {
+                await InsertCustomWatermark2(package, picPath);
+            }
+
+            return memoryStream.ToArray();
+        }
+
+        /// <summary>
+        /// 加入客製浮水印 - 直接讀取圖片byte[]版本
+        /// </summary>
+        /// <param name="package">文件主體</param>
+        /// <param name="picPath">圖片路徑</param>
+        /// <exception cref="Exception"></exception>
+        private async Task InsertCustomWatermark2(WordprocessingDocument package, string picPath)
+        {
+            MainDocumentPart mainDocumentPart1 = package.MainDocumentPart;
+
+            if (mainDocumentPart1 != null)
+            {
+                // 刪除原本的HeaderParts
+                mainDocumentPart1.DeleteParts(mainDocumentPart1.HeaderParts);
+
+                // 創建新的HeaderParts
+                HeaderPart headPart1 = mainDocumentPart1.AddNewPart<HeaderPart>();
+
+                // 在HeaderParts裡設定Header，繪製浮水印區塊
+                GenerateHeaderPart1Content(headPart1);
+
+                // 取得該part的relationshipId
+                string rId = mainDocumentPart1.GetIdOfPart(headPart1);
+
+                // 創建For Image的Part
+                ImagePart image = headPart1.AddNewPart<ImagePart>("image/png", "rId999");
+
+                // 輸入Image的數據
+                await GenerateImagePartContent(image, picPath);
+
+                SetHeaderPartReference(mainDocumentPart1, rId);
+            }
+            else
+            {
+                throw new Exception("文件無內容");
+            }
+        }
+
+        /// <summary>
+        /// 填入圖片Part內容
+        /// </summary>
+        /// <param name="imagePart">ImagePart</param>
+        /// <param name="picPath">圖片路徑</param>
+        /// <remarks>flieStream > bytes > base64 > bytes > memoryStream</remarks>
+        private async Task GenerateImagePartContent(ImagePart imagePart, string picPath)
+        {
+            using FileStream fileStream = new(picPath, FileMode.Open, FileAccess.Read);
+            byte[] imageBytes = new byte[fileStream.Length];
+
+            await fileStream.ReadAsync(imageBytes, 0, imageBytes.Length);
+
+            string imageBase64 = Convert.ToBase64String(imageBytes);
+            byte[] imageBase64Bytes = Convert.FromBase64String(imageBase64);
+
+            using MemoryStream memoryStream = new(imageBase64Bytes);
+            imagePart.FeedData(memoryStream);
+        }
+        #endregion
     }
 }
