@@ -22,9 +22,9 @@ namespace Services
             fileStream.CopyTo(memoryStream);
             memoryStream.Position = 0;
 
-            using (WordprocessingDocument package = WordprocessingDocument.Open(memoryStream, true))
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true))
             {
-                InsertCustomWatermark1(package, picPath);
+                InsertCustomWatermark1(wordDoc, picPath);
             }
 
             return memoryStream.ToArray();

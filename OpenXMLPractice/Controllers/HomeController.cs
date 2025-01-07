@@ -2,8 +2,10 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.AntioxidantReportModel;
 using Services;
 using Services.Interfaces;
+using Services.Interfaces.AntioxidantReport;
 using System.IO;
 using static Services.WordService;
 
@@ -15,12 +17,15 @@ public class HomeController : Controller
 {
     private readonly IExcelService _excelService;
     private readonly IGeneralService _generalService;
+    private readonly IAntioxidantReportService _antioxidantReportService;
 
     public HomeController(IExcelService excelService,
-        IGeneralService generalService)
+        IGeneralService generalService,
+        IAntioxidantReportService antioxidantReportService)
     {
         _excelService = excelService;
         _generalService = generalService;
+        _antioxidantReportService = antioxidantReportService;
     }
 
     /// <summary>
@@ -145,5 +150,38 @@ public class HomeController : Controller
         MainDocumentPart? mainDocPart = package.MainDocumentPart;
         Body? body = mainDocPart?.Document.Body;
         return Ok();
+    }
+
+    [HttpPost]
+    [Route("GenerateAntioxidantReport")]
+    public async Task<IActionResult> GenerateAntioxidantReport()
+    {
+        List<AntioxidantReportTransformerBaseInfoModel> transformerInfo = new();
+        AntioxidantReportTransformerBaseInfoModel model = new()
+        {
+            Number = "1",
+            TransformerName = "我是測試變壓器",
+            TransformerSerialNumber = "我是製造號碼",
+            SamplingOilTemperature = "100°C",
+            AntioxidantContent = "100"
+        };
+        transformerInfo.Add(model);
+        transformerInfo.Add(model);
+
+        var theModel = new AntioxidantReportModel
+        {
+            SampleProvider = "我是委託單位",
+            SampleProviderAddress = "我是委託單位地址",
+            ExperimentSerialNumber = "我是試驗編號",
+            IssueDate = "我是發行日期",
+            SampleCount = "我是件數",
+            SampleDate = "我是取樣日期",
+            ExperimentDate = "我是試驗時間",
+            Sampler = "我是測驗人",
+            TransformerInfo = transformerInfo
+        };
+
+        var result = await _antioxidantReportService.GenerateAntioxidantReport(theModel);
+        return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "AntioxidantReportTest.docx");
     }
 }
