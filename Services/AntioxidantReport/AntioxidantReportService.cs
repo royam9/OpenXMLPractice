@@ -205,7 +205,7 @@ public class AntioxidantReportService : IAntioxidantReportService
                     newRun.AddChild(new Text(param.TransformerName));
                     break;
                 case 2:
-                    newRun.AddChild(new Text(param.TransformerName));
+                    newRun.AddChild(new Text(param.TransformerSerialNumber));
                     break;
                 case 3:
                     newRun.AddChild(new Text(param.SamplingOilTemperature));
