@@ -33,15 +33,15 @@ namespace Services
         /// <summary>
         /// 加入客製浮水印 - 有將圖片轉成base64的版本
         /// </summary>
-        /// <param name="package">文件主體</param>
+        /// <param name="wordDoc">文件主體</param>
         /// <param name="picPath">圖片路徑</param>
         /// <exception cref="Exception"></exception>
-        private void InsertCustomWatermark1(WordprocessingDocument package, string picPath)
+        private void InsertCustomWatermark1(WordprocessingDocument wordDoc, string picPath)
         {
             // 取得圖片的base64字串
             SetWaterMarkPicture(picPath);
 
-            MainDocumentPart? mainDocumentPart = package.MainDocumentPart;
+            MainDocumentPart? mainDocumentPart = wordDoc.MainDocumentPart;
 
             if (mainDocumentPart != null)
             {
