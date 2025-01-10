@@ -207,14 +207,18 @@ namespace Services
 
                 if (i != sectPrs.Count - 1)
                 {
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId });
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId }); // 該節第一頁
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId }); // 該節預設
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId }); // 該節偶數
                 }
                 else
                 {
                     var blankHeaderPart = CreateBlankHeader(mainDocumentPart);
                     string blankHeaderPartRid = mainDocumentPart.GetIdOfPart(blankHeaderPart);
 
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = blankHeaderPartRid });
                     sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = blankHeaderPartRid });
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = blankHeaderPartRid });
                 }
             }
         }
@@ -250,21 +254,21 @@ namespace Services
         /// <exception cref="Exception"></exception>
         private async Task InsertCustomWatermark2(WordprocessingDocument package, string picPath)
         {
-            MainDocumentPart? mainDocumentPart1 = package.MainDocumentPart;
+            MainDocumentPart? mainDocumentPart = package.MainDocumentPart;
 
-            if (mainDocumentPart1 != null)
+            if (mainDocumentPart != null)
             {
                 // 刪除原本的HeaderParts
-                mainDocumentPart1.DeleteParts(mainDocumentPart1.HeaderParts);
+                mainDocumentPart.DeleteParts(mainDocumentPart.HeaderParts);
 
                 // 創建新的HeaderParts
-                HeaderPart headPart1 = mainDocumentPart1.AddNewPart<HeaderPart>();
+                HeaderPart headPart1 = mainDocumentPart.AddNewPart<HeaderPart>();
 
                 // 在HeaderParts裡設定Header，繪製浮水印區塊
                 GenerateHeaderPartContent(headPart1);
 
                 // 取得該part的relationshipId
-                string rId = mainDocumentPart1.GetIdOfPart(headPart1);
+                string rId = mainDocumentPart.GetIdOfPart(headPart1);
 
                 // 創建For Image的Part
                 ImagePart image = headPart1.AddNewPart<ImagePart>("image/png", "rId999");
@@ -272,7 +276,7 @@ namespace Services
                 // 輸入Image的數據
                 await GenerateImagePartContent(image, picPath);
 
-                SetHeaderPartReference(mainDocumentPart1, rId);
+                SetHeaderPartReference(mainDocumentPart, rId);
             }
             else
             {
