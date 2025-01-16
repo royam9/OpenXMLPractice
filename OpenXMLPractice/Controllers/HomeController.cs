@@ -184,4 +184,12 @@ public class HomeController : Controller
         var result = await _antioxidantReportService.GenerateAntioxidantReport(theModel);
         return File(result, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "AntioxidantReportTest.docx");
     }
+
+    [HttpPost]
+    [Route("ValidateWord")]
+    public async Task<IActionResult> ValidateWord([FromForm] FormFileRequestModel wordFile)
+    {
+        await WordValidateService.ValidateWord(wordFile.File);
+        return Ok();
+    }
 }

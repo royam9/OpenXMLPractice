@@ -18,6 +18,12 @@ namespace Models
         [Required]
         public IFormFile File { get; set; } = null!;
     }
+
+    public class FormFileRequestModel
+    {
+        [Required]
+        public required IFormFile File { get; set; }
+    }
     #endregion
 
     #region Response
