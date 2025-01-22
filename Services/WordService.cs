@@ -412,11 +412,11 @@ public class WordService
         /// <param name="targetChartPart">目標圖表Part</param>
         private void UpdateCache(List<List<string>> param, ChartPart? targetChartPart)
         {
-            var SeriesList = targetChartPart.ChartSpace.Descendants<LineChartSeries>().ToList();
+            var seriesList = targetChartPart.ChartSpace.Descendants<LineChartSeries>().ToList();
 
-            for (int i = 0; i < SeriesList.Count; i++)
+            for (int i = 0; i < seriesList.Count; i++)
             {
-                var series = SeriesList[i];
+                var series = seriesList[i];
 
                 // 一條線(Series)有兩個NumberingCache，一個紀錄X軸數值
                 // 一個紀錄X軸對應的Y軸數值
