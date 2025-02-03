@@ -43,5 +43,7 @@ public static class WordValidateService
         }
 
         Console.WriteLine("///End///");
+        Console.WriteLine("///End///");
+        Console.WriteLine("///End///");
     }
 }
