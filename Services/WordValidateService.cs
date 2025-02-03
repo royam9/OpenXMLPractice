@@ -41,5 +41,7 @@ public static class WordValidateService
             Console.WriteLine($"Error: {error.Description}");
             Console.WriteLine($"----------------------------------");
         }
+
+        Console.WriteLine("///End///");
     }
 }
