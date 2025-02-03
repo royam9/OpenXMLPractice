@@ -37,7 +37,7 @@ public static class WordValidateService
             Console.WriteLine($"ErrorType: {error.ErrorType}");
             Console.WriteLine($"ErrorRelatedNode: {error.RelatedNode}");
             Console.WriteLine($"ErrorNode: {error.Node}");
-            Console.WriteLine($"ErrorPath: {error.Path}");
+            Console.WriteLine($"ErrorPath: {error.Path?.XPath ?? "Null"}");
             Console.WriteLine($"Error: {error.Description}");
             Console.WriteLine($"----------------------------------");
         }
