@@ -1,7 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Validation;
 using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 
 namespace Services;
 
@@ -19,7 +18,11 @@ public static class WordValidateService
         MemoryStream stream = new MemoryStream();
         await formFile.CopyToAsync(stream);
         stream.Position = 0;
+
         ValidateWord(stream);
+
+        stream.Position = 0;
+        stream.Dispose();
     }
 
     /// <summary>
