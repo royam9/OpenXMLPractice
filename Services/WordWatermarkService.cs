@@ -8,7 +8,12 @@ namespace Services
 {
     public class WordWatermarkService
     {
-        #region 原版
+        #region 原版 將圖片先轉換成base64再填入目標元素
+        /// <summary>
+        /// 圖片base64字串
+        /// </summary>
+        private string imagePartData = "";
+
         /// <summary>
         /// 加入浮水印
         /// </summary>
@@ -72,80 +77,6 @@ namespace Services
         }
 
         /// <summary>
-        /// 產生頁首內容
-        /// </summary>
-        /// <param name="headerPart">頁首Part</param>
-        private void GenerateHeaderPartContent(HeaderPart headerPart)
-        {
-            Header header = new Header();
-            Paragraph paragraph = new Paragraph();
-            Run run = new Run();
-            Picture picture = new Picture();
-            V.Shape shape = new V.Shape()
-            {
-                Id = "WordPictureWatermark75517470",
-                Style = "position:absolute;" +
-                    "left:0;" +
-                    "text-align:left;" +
-                    "margin-left:300pt;" +
-                    "margin-top:450pt;" +
-                    "width:160pt;" +
-                    "height:160pt;" +
-                    "z-index:-251656192;",
-                //"mso-position-horizontal:center;" +
-                //"mso-position-horizontal-relative:margin;" +
-                //"mso-position-vertical:center;" +
-                //"mso-position-vertical-relative:margin",
-                OptionalString = "_x0000_s2051",
-                AllowInCell = false,
-                Type = "#_x0000_t75"                
-            };
-            V.ImageData imageData = new V.ImageData()
-            {
-                Gain = "1da1ce", // 鮮紅: 21dd7e
-                BlackLevel = "200000",
-                Title = "水印",
-                RelationshipId = "rId999" // 目標ImagePartRId
-            };
-            Stroke stroke = new Stroke() { On = false}; // 關閉外框
-
-            shape.AppendChild(stroke);
-            shape.Append(imageData);
-            picture.Append(shape);
-            run.Append(picture);
-            paragraph.Append(run);
-            header.Append(paragraph);
-            headerPart.Header = header;
-        }
-
-        /// <summary>
-        /// 填入圖片Part內容
-        /// </summary>
-        /// <param name="imagePart">ImagePart</param>
-        /// <remarks>flieStream > bytes > base64 > bytes > memoryStream</remarks>
-        private void GenerateImagePartContent(ImagePart imagePart)
-        {
-            System.IO.Stream data = GetBinaryDataStream(imagePartData);
-            imagePart.FeedData(data);
-            data.Close();
-        }
-
-        /// <summary>
-        /// 圖片base64字串
-        /// </summary>
-        private string imagePartData = "";
-
-        /// <summary>
-        /// base64字串讀取進Stream
-        /// </summary>
-        /// <param name="base64String">base64字串</param>
-        /// <returns>Stream</returns>
-        private System.IO.Stream GetBinaryDataStream(string base64String)
-        {
-            return new System.IO.MemoryStream(System.Convert.FromBase64String(base64String));
-        }
-
-        /// <summary>
         /// 讀取浮水印圖片
         /// </summary>
         /// <param name="file">浮水印圖片路徑</param>
@@ -168,63 +99,29 @@ namespace Services
         }
 
         /// <summary>
-        /// 生成空的HeaderPart
+        /// 填入圖片Part內容
         /// </summary>
-        /// <param name="mainDocumentPart">MainDocumentPart</param>
-        /// <returns>空的HeaderPart</returns>
-        private HeaderPart CreateBlankHeader(MainDocumentPart mainDocumentPart)
+        /// <param name="imagePart">ImagePart</param>
+        /// <remarks>flieStream > bytes > base64 > bytes > memoryStream</remarks>
+        private void GenerateImagePartContent(ImagePart imagePart)
         {
-            var headerPart = mainDocumentPart.AddNewPart<HeaderPart>();
-            Header header = new Header();
-            Paragraph paragraph = new Paragraph();
-            Run run = new Run();
-            paragraph.Append(run);
-            header.Append(paragraph);
-            headerPart.Header = header;
-
-            return headerPart;
+            System.IO.Stream data = GetBinaryDataStream(imagePartData);
+            imagePart.FeedData(data);
+            data.Close();
         }
 
         /// <summary>
-        /// 繫結MainDocumentPart與目標HeaderPart
+        /// base64字串讀取進Stream
         /// </summary>
-        /// <param name="mainDocumentPart">MainDocumentPart</param>
-        /// <param name="rId">目標HeaderPart rId</param>
-        /// <remarks>最後一節之外皆加入水印</remarks>
-        private void SetHeaderPartReference(MainDocumentPart mainDocumentPart, string rId)
+        /// <param name="base64String">base64字串</param>
+        /// <returns>Stream</returns>
+        private System.IO.Stream GetBinaryDataStream(string base64String)
         {
-            // Body下的SectionProperties > HeaderReference 只控制最後一節
-            // 其他的位於 Paragraph > SectionProperties > HeaderReference
-            // 如果該節沒有訂義HeaderReference，會向上繼承
-            // 所以最後尾如果不想要有浮水印，要自己創一個空的
-            List<SectionProperties>? sectPrs = mainDocumentPart.Document.Body?.Descendants<SectionProperties>().ToList();
-
-            for (int i = 0; i < sectPrs?.Count; i++)
-            {
-                var sectPr = sectPrs[i];
-
-                sectPr.RemoveAllChildren<HeaderReference>();
-
-                if (i != sectPrs.Count - 1)
-                {
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId }); // 該節第一頁
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId }); // 該節預設
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId }); // 該節偶數
-                }
-                else
-                {
-                    var blankHeaderPart = CreateBlankHeader(mainDocumentPart);
-                    string blankHeaderPartRid = mainDocumentPart.GetIdOfPart(blankHeaderPart);
-
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = blankHeaderPartRid });
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = blankHeaderPartRid });
-                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = blankHeaderPartRid });
-                }
-            }
+            return new System.IO.MemoryStream(System.Convert.FromBase64String(base64String));
         }
         #endregion
 
-        #region 新版
+        #region 新版 直接將讀取圖片數據填入目標元素
         /// <summary>
         /// 加入浮水印
         /// </summary>
@@ -300,5 +197,108 @@ namespace Services
             imagePart.FeedData(memoryStream);
         }
         #endregion
+
+        /// <summary>
+        /// 產生頁首內容
+        /// </summary>
+        /// <param name="headerPart">頁首Part</param>
+        private void GenerateHeaderPartContent(HeaderPart headerPart)
+        {
+            Header header = new Header();
+            Paragraph paragraph = new Paragraph();
+            Run run = new Run();
+            Picture picture = new Picture();
+            V.Shape shape = new V.Shape()
+            {
+                Id = "WordPictureWatermark75517470",
+                Style = "position:absolute;" +
+                    "left:0;" +
+                    "text-align:left;" +
+                    "margin-left:300pt;" +
+                    "margin-top:450pt;" +
+                    "width:160pt;" +
+                    "height:160pt;" +
+                    "z-index:-251656192;",
+                //"mso-position-horizontal:center;" +
+                //"mso-position-horizontal-relative:margin;" +
+                //"mso-position-vertical:center;" +
+                //"mso-position-vertical-relative:margin",
+                OptionalString = "_x0000_s2051",
+                AllowInCell = false,
+                Type = "#_x0000_t75"
+            };
+            V.ImageData imageData = new V.ImageData()
+            {
+                Gain = "1da1ce", // 鮮紅: 21dd7e
+                BlackLevel = "200000",
+                Title = "水印",
+                RelationshipId = "rId999" // 目標ImagePartRId
+            };
+            Stroke stroke = new Stroke() { On = false }; // 關閉外框
+
+            shape.AppendChild(stroke);
+            shape.Append(imageData);
+            picture.Append(shape);
+            run.Append(picture);
+            paragraph.Append(run);
+            header.Append(paragraph);
+            headerPart.Header = header;
+        }
+
+        /// <summary>
+        /// 生成空的HeaderPart
+        /// </summary>
+        /// <param name="mainDocumentPart">MainDocumentPart</param>
+        /// <returns>空的HeaderPart</returns>
+        private HeaderPart CreateBlankHeader(MainDocumentPart mainDocumentPart)
+        {
+            var headerPart = mainDocumentPart.AddNewPart<HeaderPart>();
+            Header header = new Header();
+            Paragraph paragraph = new Paragraph();
+            Run run = new Run();
+            paragraph.Append(run);
+            header.Append(paragraph);
+            headerPart.Header = header;
+
+            return headerPart;
+        }
+
+        /// <summary>
+        /// 繫結MainDocumentPart與目標HeaderPart
+        /// </summary>
+        /// <param name="mainDocumentPart">MainDocumentPart</param>
+        /// <param name="rId">目標HeaderPart rId</param>
+        /// <remarks>最後一節之外皆加入水印</remarks>
+        private void SetHeaderPartReference(MainDocumentPart mainDocumentPart, string rId)
+        {
+            // Body下的SectionProperties > HeaderReference 只控制最後一節
+            // 其他的位於 Paragraph > SectionProperties > HeaderReference
+            // 如果該節沒有訂義HeaderReference，會向上繼承
+            // 所以最後尾如果不想要有浮水印，要自己創一個空的
+            List<SectionProperties>? sectPrs = mainDocumentPart.Document.Body?.Descendants<SectionProperties>().ToList();
+
+            for (int i = 0; i < sectPrs?.Count; i++)
+            {
+                var sectPr = sectPrs[i];
+
+                sectPr.RemoveAllChildren<HeaderReference>();
+
+                if (i != sectPrs.Count - 1)
+                {
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId }); // 該節第一頁
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId }); // 該節預設
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId }); // 該節偶數
+                }
+                else
+                {
+                    var blankHeaderPart = CreateBlankHeader(mainDocumentPart);
+                    string blankHeaderPartRid = mainDocumentPart.GetIdOfPart(blankHeaderPart);
+
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = blankHeaderPartRid });
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = blankHeaderPartRid });
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = blankHeaderPartRid });
+                }
+            }
+        }
     }
 }
