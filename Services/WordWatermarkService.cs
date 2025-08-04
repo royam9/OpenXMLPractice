@@ -8,6 +8,111 @@ namespace Services
 {
     public class WordWatermarkService
     {
+        #region 全部統整到一起版
+        public async Task<Stream> InsertWatermark()
+        {
+            // 複製文件資料到MemoryStream
+            using FileStream fileStream = new(@"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\Hi.docx", FileMode.Open, FileAccess.Read, FileShare.Read);
+            MemoryStream memoryStream = new();
+            await fileStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            // 開啟文件
+            using WordprocessingDocument wordDoc = WordprocessingDocument.Open(memoryStream, true);
+
+            MainDocumentPart? mainDocumentPart = wordDoc.MainDocumentPart;
+
+            if (mainDocumentPart != null)
+            {
+                // 刪除原本的HeaderParts
+                mainDocumentPart.DeleteParts(mainDocumentPart.HeaderParts);
+
+                // 創建新的HeaderParts
+                HeaderPart headerPart = mainDocumentPart.AddNewPart<HeaderPart>();
+
+                // 創建For Image的Part
+                ImagePart imagePart = headerPart.AddNewPart<ImagePart>("image/png");
+                var imagePartRId = headerPart.GetIdOfPart(imagePart);
+
+                // 在HeaderParts裡設定Header，繪製浮水印區塊
+                Header header = new Header();
+                Paragraph paragraph = new Paragraph();
+                Run run = new Run();
+                Picture picture = new Picture();
+                // 建立圖形的容器
+                DocumentFormat.OpenXml.Vml.Shape shape = new DocumentFormat.OpenXml.Vml.Shape()
+                {
+                    Id = "WordPictureWatermark75517470",
+                    // 容器樣式
+                    Style = "position:absolute;" + // 絕對位置
+                         "left:0;" +
+                         "text-align:left;" +
+                         "margin-left:300pt;" + // 容器位置
+                         "margin-top:450pt;" +
+                         "width:160pt;" +
+                         "height:160pt;" +
+                         "z-index:-251656192;",
+                    AllowInCell = false, // 不允許內嵌在表格儲存格
+                    Type = "#_x0000_t75" // VML 圖形的類型參考，_x0000_t75代表圖片
+                };
+                DocumentFormat.OpenXml.Vml.ImageData imageData = new DocumentFormat.OpenXml.Vml.ImageData()
+                {
+                    Gain = "1da1ce", // 影像亮度調整
+                    BlackLevel = "200000", // 黑階層級
+                    Title = "水印",
+                    RelationshipId = imagePartRId // 目標ImagePartRId
+                };
+                Stroke stroke = new Stroke() { On = false }; // 關閉外框
+
+                shape.AppendChild(stroke);
+                shape.Append(imageData);
+                picture.Append(shape);
+                run.Append(picture);
+                paragraph.Append(run);
+                header.Append(paragraph);
+                headerPart.Header = header;
+
+                // 取得該part的relationshipId
+                string rId = mainDocumentPart.GetIdOfPart(headerPart);
+
+                // 輸入Image的數據
+                using (FileStream imgfileStream = new FileStream(@"C:\Users\TWJOIN\Desktop\安寶\報告輸出模板\安寶報告章.驗收章.png", FileMode.Open, FileAccess.Read))
+                {
+                    imgfileStream.Position = 0;
+
+                    using (MemoryStream imgmemoryStream = new MemoryStream())
+                    {
+                        await imgfileStream.CopyToAsync(imgmemoryStream);
+                        imgmemoryStream.Position = 0;
+
+                        imagePart.FeedData(imgmemoryStream);
+                    }
+                }
+
+                // 繫結MainDocumentPart與目標HeaderPart
+                List<SectionProperties>? sectPrs = mainDocumentPart.Document.Body?.Descendants<SectionProperties>().ToList();
+
+                for (int i = 0; i < sectPrs?.Count; i++)
+                {
+                    var sectPr = sectPrs[i];
+
+                    sectPr.RemoveAllChildren<HeaderReference>();
+
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.First, Id = rId }); // 該節第一頁
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Default, Id = rId }); // 該節預設
+                    sectPr.PrependChild<HeaderReference>(new HeaderReference() { Type = HeaderFooterValues.Even, Id = rId }); // 該節偶數
+                }
+            }
+
+            wordDoc.Dispose();
+            memoryStream.Position = 0;
+
+
+            // 去API接這個Stream然後return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Watermark.docx")
+            return memoryStream;
+        }
+        #endregion
+
         #region 原版 將圖片先轉換成base64再填入目標元素
         /// <summary>
         /// 圖片base64字串
